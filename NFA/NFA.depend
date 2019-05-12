@@ -1,0 +1,22 @@
+# depslib dependency file v1.0
+1557674567 source:c:\users\adminuser\desktop\nfa\nfa\main.cpp
+	<iostream>
+	"Transition.h"
+	"Automaton.h"
+	<cstring>
+
+1557674651 source:c:\users\adminuser\desktop\nfa\nfa\src\automaton.cpp
+	"Automaton.h"
+	<cstring>
+
+1557674238 c:\users\adminuser\desktop\nfa\nfa\include\automaton.h
+	"Transition.h"
+	<iostream>
+
+1557668973 c:\users\adminuser\desktop\nfa\nfa\include\transition.h
+	<iostream>
+
+1557668973 source:c:\users\adminuser\desktop\nfa\nfa\src\transition.cpp
+	"Transition.h"
+	<cstring>
+
