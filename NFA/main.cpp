@@ -18,8 +18,7 @@ int main()
     automat2.addTransition(tr3);
     automat2.addStartingState('R');
     automat2.addEndingState('T');
-    Automaton*  automat3= automat*automat2;
-    automat3->print();
-    cout << automat3->isWordRecognisable("aaaa");
+    Automaton automat3("aaaa");
+    automat3.print();
     return 0;
 }
