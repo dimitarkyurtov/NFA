@@ -13,7 +13,12 @@ class Automaton
         bool addTransition(const Transition& other);
         bool addStartingState(const char& state);
         bool addEndingState(const char& state);
+        Automaton* operator+(const Automaton& other);
+        Automaton* operator+();
+        Automaton* operator*(const Automaton& other);
         Automaton* unite(const Automaton& other) const;
+        Automaton* concat(const Automaton& other) const;
+        Automaton* un() const;
         void print(std::ostream& stream = std::cout) const;
         ~Automaton();
 
