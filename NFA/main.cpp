@@ -7,17 +7,19 @@ using namespace std;
 
 int main()
 {
-    Transition tr1('Q', 'a', 'R'), tr2('R', 'b', 'S'), tr3('S', 'a', 'T');
+    Transition  tr4('W', 'a', 'Q'), tr1('Q', 'a', 'R'), tr2('R', 'b', 'S'), tr3('S', 'a', 'T');
     Automaton automat, automat2;
     automat.addTransition(tr1);
-    automat.addStartingState('Q');
+    automat.addTransition(tr4);
+    automat.addStartingState('W');
     automat.addEndingState('R');
 
     automat2.addTransition(tr2);
+    automat2.addTransition(tr3);
     automat2.addStartingState('R');
-    automat2.addEndingState('S');
-    Automaton*  automat3= automat2.unite(automat);
+    automat2.addEndingState('T');
+    Automaton*  automat3= automat*automat2;
     automat3->print();
-    cout << automat3->isWordRecognisable("ab");
+    cout << automat3->isWordRecognisable("aaaa");
     return 0;
 }
