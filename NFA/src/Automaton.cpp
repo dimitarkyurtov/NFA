@@ -146,6 +146,7 @@ Automaton* Automaton::unite(const Automaton& other) const{
     Automaton* unity = new Automaton;
     unity->addStartingState('A');
     Transition transition;
+
     unsigned length = strlen(initialStates);
     for(unsigned i = 0; i < length; i ++){
         for(unsigned j = 0; j < transitionCounter; j ++){
@@ -155,6 +156,7 @@ Automaton* Automaton::unite(const Automaton& other) const{
             }
         }
     }
+
     length = strlen(other.initialStates);
     for(unsigned i = 0; i < length; i ++){
         for(unsigned j = 0; j < other.transitionCounter; j ++){
@@ -164,6 +166,7 @@ Automaton* Automaton::unite(const Automaton& other) const{
             }
         }
     }
+
     length = transitionCounter;
     for(unsigned i = 0; i < length; i ++){
         if(!this->isStartingState(deltaFunction[i].getInitialState())){
@@ -172,6 +175,10 @@ Automaton* Automaton::unite(const Automaton& other) const{
 
         if(this->isEndingState(deltaFunction[i].getEndingState())){
             unity->addEndingState(deltaFunction[i].getEndingState());
+        }
+
+        if(this->isStartingState(deltaFunction[i].getInitialState()) && this->isEndingState(deltaFunction[i].getInitialState())){
+            unity->addEndingState('A');
         }
     }
 
@@ -184,8 +191,82 @@ Automaton* Automaton::unite(const Automaton& other) const{
         if(other.isEndingState(other.deltaFunction[i].getEndingState())){
             unity->addEndingState(other.deltaFunction[i].getEndingState());
         }
+
+        if(other.isStartingState(other.deltaFunction[i].getInitialState()) && other.isEndingState(other.deltaFunction[i].getInitialState())){
+            unity->addEndingState('A');
+        }
     }
+
+
     return unity;
+}
+
+Automaton* Automaton::concat(const Automaton& other) const{
+    Automaton* concat = new Automaton;
+    unsigned length = transitionCounter;
+    unsigned length2 = other.transitionCounter;
+    for(unsigned i = 0; i < length; i ++){
+        for(unsigned j = 0; j < length2; j ++){
+            if(this->isEndingState(this->deltaFunction[i].getEndingState()) && other.isStartingState(other.deltaFunction[j].getInitialState())){
+                concat->addTransition(Transition(deltaFunction[i].getEndingState(), other.deltaFunction[j].getSymbol(), other.deltaFunction[j].getEndingState()));
+            }
+            if(other.isEndingState(other.deltaFunction[j].getInitialState())){
+                concat->addEndingState(deltaFunction[i].getInitialState());
+            }
+        }
+    }
+
+    length = transitionCounter;
+    for(unsigned i = 0; i < length; i ++){
+        if(this->isStartingState(this->deltaFunction[i].getInitialState())){
+            concat->addStartingState(this->deltaFunction[i].getInitialState());
+        }
+        concat->addTransition(deltaFunction[i]);
+    }
+
+
+    length = other.transitionCounter;
+    for(unsigned i = 0; i < length; i ++){
+        if(other.isEndingState(other.deltaFunction[i].getEndingState())){
+            concat->addEndingState(other.deltaFunction[i].getEndingState());
+        }
+        if(!other.isStartingState(other.deltaFunction[i].getInitialState())){
+            concat->addTransition(other.deltaFunction[i]);
+        }
+    }
+    return concat;
+}
+
+Automaton* Automaton::un() const{
+    Automaton* un = new Automaton;
+    unsigned length = transitionCounter;
+    for(unsigned i = 0; i < length; i ++){
+        un->addTransition(deltaFunction[i]);
+        if(this->isStartingState(deltaFunction[i].getInitialState())){
+            un->addStartingState(deltaFunction[i].getInitialState());
+        }
+        if(this->isEndingState(deltaFunction[i].getEndingState())){
+            un->addEndingState(deltaFunction[i].getEndingState());
+            for(unsigned j = 0; j < length; j ++){
+                if(this->isStartingState(deltaFunction[j].getInitialState())){
+                    un->addTransition(Transition(deltaFunction[i].getEndingState(), deltaFunction[j].getSymbol(), deltaFunction[j].getEndingState()));
+                }
+            }
+        }
+    }
+    return un;
+}
+
+Automaton* Automaton::operator+(const Automaton& other){
+    return this->unite(other);
+}
+
+Automaton* Automaton::operator+(){
+    return this->un();
+}
+
+Automaton* Automaton::operator*(const Automaton& other){
+    return this->concat(other);
 }
 
 Automaton::~Automaton()
