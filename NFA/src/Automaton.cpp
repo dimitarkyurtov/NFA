@@ -40,6 +40,53 @@ void Automaton::resize(){
     deltaFunction = newDeltaFunc;
 }
 
+Automaton::Automaton(char singleton, Counter counter){
+    states = new char[1];
+    states[0] = '\0';
+    finalStates = new char[1];
+    finalStates[0] = '\0';
+    initialStates = new char[1];
+    initialStates[0] = '\0';
+    deltaFunction = new Transition[4];
+    transitionCapacity = 4;
+    transitionCounter = 0;
+    this->addTransition(Transition(counter.getStarState(), singleton, counter.getEndState()));
+}
+
+Automaton::Automaton(char* word){
+    unsigned length = strlen(word);
+    Counter counter;
+    Automaton automat(word[0], counter);
+    ++counter;
+    Automaton automatHelper;/*!!!!*/
+    std::cout << counter.getStarState() << std::endl;
+    for(unsigned i = 1; i < length; i ++){
+        if(word[i] == ')'){
+            automat = +automat;
+            i++;
+        }else
+        if(word[i] == '+'){
+            automatHelper = Automaton(word[i+1], counter);
+            ++counter;
+            i ++;
+            automat = automat + automatHelper;
+        }else
+        if(word[i+1] == '*'){
+            automatHelper = Automaton(word[i], counter);
+            ++counter;
+            i++;
+            automatHelper = +automatHelper;
+        }else{
+            automatHelper = Automaton(word[i], counter);
+            ++counter;
+            std::cout << counter.getStarState() << std::endl;
+            automatHelper.print();
+        }
+        automat = *(automat*automatHelper);
+    }
+    *this = automat;
+}
+
 void Automaton::destroy(){
     delete []deltaFunction;
     delete []states;
@@ -49,6 +96,24 @@ void Automaton::destroy(){
 
 Automaton::Automaton(const Automaton& other){
     copy(other);
+}
+
+const Automaton& Automaton::operator=(const Automaton* other){
+    if(this != other){
+        destroy();
+        deltaFunction = new Transition[other->transitionCounter];
+        for(unsigned i = 0; i < transitionCounter; i ++){
+            deltaFunction[i] = other->deltaFunction[i];
+        }
+        transitionCounter = other->transitionCounter;
+        transitionCapacity = other->transitionCapacity;
+        states = new char[strlen(other->states) + 1];
+        initialStates = new char[strlen(other->initialStates) + 1];
+        finalStates = new char[strlen(other->finalStates) + 1];
+        strcpy(states, other->states);
+        strcpy(initialStates, other->initialStates);
+        strcpy(finalStates, other->finalStates);
+    } return *this;
 }
 
 const Automaton& Automaton::operator=(const Automaton& other){
