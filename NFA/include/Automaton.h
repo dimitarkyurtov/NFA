@@ -9,7 +9,7 @@ class Automaton
     public:
         Automaton();
         Automaton(const Automaton& other);
-        Automaton(char* word);
+        Automaton(const char* word);
         Automaton(char singleton, Counter counter);
         const Automaton& operator=(const Automaton& other);
         const Automaton& operator=(const Automaton* other);
