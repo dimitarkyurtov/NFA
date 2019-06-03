@@ -4,30 +4,46 @@
 Automaton::Automaton()
 {
 
-    states = new char[1];
-    states[0] = '\0';
-    finalStates = new char[1];
-    finalStates[0] = '\0';
-    initialStates = new char[1];
-    initialStates[0] = '\0';
+    states = new std::string[10];
+    states[0] = "";
+    alphabet = new char[2];
+    alphabet[0] = 'a';
+    alphabet[1] = 'b';
+    statesSize = 0;
+    finalStates = new std::string[10];
+    finalStates[0] = "";
+    finalStatesSSize = 0;
+    initialStates = new std::string[10];
+    initialStates[0] = "";
+    initialStatesSize = 0;
     deltaFunction = new Transition[4];
     transitionCapacity = 4;
     transitionCounter = 0;
 }
 
 void Automaton::copy(const Automaton& other){
+    strcpy(alphabet, other.alphabet);
     deltaFunction = new Transition[other.transitionCounter];
-    for(unsigned i = 0; i < transitionCounter; i ++){
+    for(unsigned i = 0; i < other.transitionCounter; i ++){
         deltaFunction[i] = other.deltaFunction[i];
     }
     transitionCounter = other.transitionCounter;
     transitionCapacity = other.transitionCapacity;
-    states = new char[strlen(other.states) + 1];
-    initialStates = new char[strlen(other.initialStates) + 1];
-    finalStates = new char[strlen(other.finalStates) + 1];
-    strcpy(states, other.states);
-    strcpy(initialStates, other.initialStates);
-    strcpy(finalStates, other.finalStates);
+    states = new std::string[other.statesSize + 1];
+    initialStates = new std::string[other.initialStatesSize + 1];
+    finalStates = new std::string[other.finalStatesSSize + 1];
+    unsigned length = other.statesSize;
+    for(unsigned i = 0; i < length; i ++){
+        states[i] = other.states[i];
+    }
+    length = other.initialStatesSize;
+    for(unsigned i = 0; i < length; i ++){
+        initialStates[i] = other.initialStates[i];
+    }
+    length = other.finalStatesSSize;
+    for(unsigned i = 0; i < length; i ++){
+        finalStates[i] = other.finalStates[i];
+    }
 }
 
 void Automaton::resize(){
@@ -41,6 +57,7 @@ void Automaton::resize(){
 }
 
 bool Automaton::addTransition(const Transition& other){
+
     if(transitionCounter == transitionCapacity){
         resize();
     }
@@ -48,41 +65,63 @@ bool Automaton::addTransition(const Transition& other){
     return true;
 }
 
+/*
 Automaton::Automaton(const char* word){
+    states = new char[1];
+    states[0] = '\0';
+    finalStates = new char[1];
+    finalStates[0] = '\0';
+    initialStates = new char[1];
+    initialStates[0] = '\0';
     deltaFunction = new Transition[4];
     transitionCapacity = 4;
     transitionCounter = 0;
     unsigned length = strlen(word);
+    Automaton* automaton = new Automaton;
     Counter counter;
     Transition transition;
-    for (unsigned i = 0; i < length; i ++){
-        if(word[i] == '+'){
-            ++counter;
-            for(unsigned j = i+1; word[j] >= 'a' && word[j] <= 'z' && j < length; j ++){
-                transition = Transition(counter.getStarState(), word[j], counter.getEndState());
-                this->addTransition(transition);
-                ++counter;
-                i = j;
-            }
-
-        }
+    unsigned j = 0;
+    for(unsigned i = 0; i < length; i ++){
         if(word[i] == '('){
-            ++counter;
-            for(unsigned j = i+1; word[j] != ')' && word[j] != '*'; j ++){
-                transition = Transition(counter.getStarState(), word[j], counter.getEndState());
-                this->addTransition(transition);
-                ++counter;
-                i = j;
-            }
+            this->addEndingState(counter.getStarState());
+            automaton = new Automaton;
+            j = i+1;
+            automaton->addStartingState(counter.getStarState());
+            while(j < length && word[j] != ')' && word[j]){
+                    transition = Transition(counter.getStarState(), word[j], counter.getEndState());
+                    ++counter;
+                    automaton->addTransition(transition);
+                    j ++;
+                  }
+            automaton->addEndingState(counter.getStarState());
+            i = j+1;
+            this->addStartingState('0');
+            automaton->operator=(*(automaton->un()));
+            this->operator=(*(this->concat(*automaton)));
            }
-        if(i != length - 1){
-            transition = Transition(counter.getStarState(), word[i], counter.getEndState());
-            this->addTransition(transition);
-            ++counter;
-        }
+           else if(word[i] == '+'){
+            automaton = new Automaton;
+            j = i+1;
+            automaton->addStartingState(counter.getStarState());
+            while(j < length && word[j] != '+' && word[j] != '(' && word[j] != '*'){
 
+                    transition = Transition(counter.getStarState(), word[j], counter.getEndState());
+                    ++counter;
+                    automaton->addTransition(transition);
+                    j ++;
+                  }
+            automaton->addEndingState(counter.getEndState());
+            i = j - 1;
+            this->addStartingState('0');
+            this->operator=(*(this->unite(*automaton)));
+        }else {
+            transition = Transition(counter.getStarState(), word[i], counter.getEndState());
+            ++counter;
+            this->addTransition(transition);
+        }
     }
-}
+    this->addEndingState(counter.getStarState());
+}*/
 
 void Automaton::destroy(){
     delete []deltaFunction;
@@ -95,24 +134,6 @@ Automaton::Automaton(const Automaton& other){
     copy(other);
 }
 
-/*const Automaton& Automaton::operator=(const Automaton* other){
-    if(this != other){
-        destroy();
-        deltaFunction = new Transition[other->transitionCounter];
-        for(unsigned i = 0; i < transitionCounter; i ++){
-            deltaFunction[i] = other->deltaFunction[i];
-        }
-        transitionCounter = other->transitionCounter;
-        transitionCapacity = other->transitionCapacity;
-        states = new char[strlen(other->states) + 1];
-        initialStates = new char[strlen(other->initialStates) + 1];
-        finalStates = new char[strlen(other->finalStates) + 1];
-        strcpy(states, other->states);
-        strcpy(initialStates, other->initialStates);
-        strcpy(finalStates, other->finalStates);
-    } return *this;
-}*/
-
 const Automaton& Automaton::operator=(const Automaton& other){
     if(this != &other){
         destroy();
@@ -120,23 +141,87 @@ const Automaton& Automaton::operator=(const Automaton& other){
     } return *this;
 }
 
-bool Automaton::addStartingState(const char& state){
-    unsigned length = strlen(initialStates);
-    char * newInitialStates = new char[length + 2];
-    strcpy(newInitialStates, initialStates);
+void Automaton::cpyStringArray(std::string* str1, std::string* str2, unsigned size){
+    for(unsigned i = 0; i < size; i ++){
+        str1[i] = str2[i];
+    }
+}
+
+bool Automaton::Deterministic() const{
+    for(unsigned i = 0; i < transitionCounter; i ++){
+        for(unsigned j = 0; j < transitionCounter; j ++){
+            if(i != j){
+                if(deltaFunction[i].getInitialState() == deltaFunction[j].getInitialState() && deltaFunction[i].getSymbol() == deltaFunction[j].getSymbol()){
+                    return false;
+                }
+            }
+        }
+    } return true;
+}
+
+bool Automaton::recursion(const std::string state) const{
+    if(this->isStartingState(state)){
+        return false;
+    }else{
+        for(unsigned i = 0; i < transitionCounter; i ++){
+            if(deltaFunction[i].getEndingState().compare(state) == 0){
+                return recursion(deltaFunction[i].getInitialState());
+            }
+        }
+    }
+    return true;
+}
+
+bool Automaton::Empty() const{
+    unsigned length = finalStatesSSize;
+    for(unsigned i = 0; i < length; i ++){
+        if(!recursion(finalStates[i])){
+            return false;
+        }
+    } return true;
+}
+
+bool Automaton::Finite() const{
+    std::string previousStates;
+    return !recursion2(deltaFunction[0].getInitialState(), previousStates);
+}
+
+bool Automaton::recursion2(const std::string& state, std::string& previousStates) const{
+    for(unsigned i = 0; i < transitionCounter; i ++){
+        if(deltaFunction[i].getInitialState() == state){
+            previousStates += state;
+            recursion2(deltaFunction[i].getEndingState(), previousStates);
+        }
+        for(unsigned j = 0; j < previousStates.length()-1; j ++){
+            for(unsigned k = j+1; k < previousStates.length(); k ++){
+                if(previousStates.at(j) == previousStates.at(k)){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+
+bool Automaton::addStartingState(const std::string& state){
+    unsigned length = initialStatesSize;
+    std::string * newInitialStates = new std::string[length + 1];
+    cpyStringArray(newInitialStates, initialStates, length);
     newInitialStates[length] = state;
-    newInitialStates[length+1] = '\0';
+    initialStatesSize++;
     delete initialStates;
     initialStates = newInitialStates;
     return true;
 }
 
-bool Automaton::addEndingState(const char& state){
-    unsigned length = strlen(finalStates);
-    char * newFinalStates = new char[length + 2];
-    strcpy(newFinalStates, finalStates);
+bool Automaton::addEndingState(const std::string& state){
+    unsigned length = finalStatesSSize;
+    std::string * newFinalStates = new std::string[length + 1];
+    cpyStringArray(newFinalStates, finalStates, length);
     newFinalStates[length] = state;
-    newFinalStates[length+1] = '\0';
+    finalStatesSSize++;
     delete finalStates;
     finalStates = newFinalStates;
     return true;
@@ -149,18 +234,18 @@ void Automaton::print(std::ostream& stream) const{
 }
 
 
-bool Automaton::isStartingState(const char& state) const{
-    unsigned length = strlen(initialStates);
+bool Automaton::isStartingState(const std::string& state) const{
+    unsigned length = initialStatesSize;
     for(unsigned i = 0; i < length; i ++){
-        if(state == initialStates[i]){
+        if(state.compare(initialStates[i]) == 0){
             return true;
         }
     }
     return false;
 }
 
-bool Automaton::isEndingState(const char& state) const{
-    unsigned length = strlen(finalStates);
+bool Automaton::isEndingState(const std::string& state) const{
+    unsigned length = finalStatesSSize;
     for(unsigned i = 0; i < length; i ++){
         if(state == finalStates[i]){
             return true;
@@ -169,10 +254,81 @@ bool Automaton::isEndingState(const char& state) const{
     return false;
 }
 
-bool Automaton::isWordRecognisable(const char* word) const{
+bool Automaton::isState(const std::string& state) const{
+    unsigned length = statesSize;
+    for(unsigned i = 0; i < length; i ++){
+        if(state == states[i]){
+            return true;
+        }
+    }
+    return false;
+}
+
+void Automaton::addState(const std::string& state){
+    states[statesSize++] = state;
+}
+
+void Automaton::function(std::string startingState, const char& symbol, std::string* queue, unsigned& queueCounter, Automaton* automatonHelper) const{
+    std::string str;
+    bool isEndingState;
+    for(unsigned i = 0; i < transitionCounter; i ++){
+        if(startingState.find(deltaFunction[i].getInitialState()) != std::string::npos && deltaFunction[i].getSymbol() == symbol){
+            if(this->isEndingState(deltaFunction[i].getEndingState())){
+                isEndingState = 1;
+            }
+            str += deltaFunction[i].getEndingState();
+        }
+    }
+    if(!str.empty()){
+        automatonHelper->addTransition(Transition(startingState, symbol, str));
+        if(isEndingState){
+            automatonHelper->addEndingState(str);
+        }
+        bool br = 0;
+        for(unsigned i = 0; i < queueCounter; i ++){
+            if(queue[i] == str){
+                br++;
+            }
+        }
+        if(br == 0){
+            queue[queueCounter++] = str;
+
+        }
+    }
+
+}
+
+void Automaton::Determinate(){
+    unsigned length = initialStatesSize;
+    Automaton* automatonHelper = new Automaton;
+    std::string* queue = new std::string[100];
+    unsigned queueCounter = 0;
+    unsigned queueCounter2 = length;
+    for(unsigned i = 0; i < length; i ++){
+        automatonHelper->addStartingState(initialStates[i]);
+    }
+    for(unsigned i = 0; i < length; i ++){
+        queue[queueCounter++] = initialStates[i];
+        for(unsigned j = 0; j < 2; j ++){
+            function(initialStates[i], alphabet[j], queue, queueCounter, automatonHelper);
+        }
+   }
+   while(queueCounter != queueCounter2){
+        for(unsigned i = 0; i < 2; i ++){
+            function(queue[queueCounter2], alphabet[i], queue, queueCounter, automatonHelper);
+        }
+        queueCounter2++;
+   }
+   copy(*automatonHelper);
+}
+
+bool Automaton::isWordRecognisable(const char* word){
+    if(!Deterministic()){
+        Determinate();
+    }
     unsigned length = strlen(word);
-    unsigned length2 = strlen(initialStates);
-    char state;
+    unsigned length2 = initialStatesSize;
+    std::string state;
     unsigned j;
     unsigned i;
     for(unsigned k = 0; k < length2; k ++){
@@ -198,41 +354,41 @@ bool Automaton::isWordRecognisable(const char* word) const{
 
 Automaton* Automaton::unite(const Automaton& other) const{
     Automaton* unity = new Automaton;
-    unity->addStartingState('A');
+    unity->addStartingState("A");
     Transition transition;
 
-    unsigned length = strlen(initialStates);
+    unsigned length = initialStatesSize;
     for(unsigned i = 0; i < length; i ++){
         for(unsigned j = 0; j < transitionCounter; j ++){
             if(initialStates[i] == deltaFunction[j].getInitialState()){
-                    transition = Transition('A', deltaFunction[j].getSymbol(), deltaFunction[j].getEndingState());
+                    transition = Transition("A", deltaFunction[j].getSymbol(), deltaFunction[j].getEndingState());
                     unity->addTransition(transition);
             }
         }
     }
 
-    length = strlen(other.initialStates);
+    length = other.initialStatesSize;
     for(unsigned i = 0; i < length; i ++){
         for(unsigned j = 0; j < other.transitionCounter; j ++){
             if(other.initialStates[i] == other.deltaFunction[j].getInitialState()){
-                    transition = Transition('A', other.deltaFunction[j].getSymbol(), other.deltaFunction[j].getEndingState());
+                    transition = Transition("A", other.deltaFunction[j].getSymbol(), other.deltaFunction[j].getEndingState());
                     unity->addTransition(transition);
             }
         }
     }
+
 
     length = transitionCounter;
     for(unsigned i = 0; i < length; i ++){
         if(!this->isStartingState(deltaFunction[i].getInitialState())){
             unity->addTransition(deltaFunction[i]);
         }
-
         if(this->isEndingState(deltaFunction[i].getEndingState())){
             unity->addEndingState(deltaFunction[i].getEndingState());
         }
 
         if(this->isStartingState(deltaFunction[i].getInitialState()) && this->isEndingState(deltaFunction[i].getInitialState())){
-            unity->addEndingState('A');
+            unity->addEndingState("A");
         }
     }
 
@@ -247,11 +403,9 @@ Automaton* Automaton::unite(const Automaton& other) const{
         }
 
         if(other.isStartingState(other.deltaFunction[i].getInitialState()) && other.isEndingState(other.deltaFunction[i].getInitialState())){
-            unity->addEndingState('A');
+            unity->addEndingState("A");
         }
     }
-
-
     return unity;
 }
 
