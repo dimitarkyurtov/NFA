@@ -3,6 +3,7 @@
 #include"Transition.h"
 #include"Counter.h"
 #include<iostream>
+#include<string>
 
 class Automaton
 {
@@ -12,11 +13,14 @@ class Automaton
         Automaton(const char* word);
         Automaton(char singleton, Counter counter);
         const Automaton& operator=(const Automaton& other);
-        const Automaton& operator=(const Automaton* other);
-        bool isWordRecognisable(const char* word) const;
+        bool Deterministic() const;
+        void Determinate();
+        bool Empty() const;
+        bool Finite() const;
+        bool isWordRecognisable(const char* word);
         bool addTransition(const Transition& other);
-        bool addStartingState(const char& state);
-        bool addEndingState(const char& state);
+        bool addStartingState(const std::string& state);
+        bool addEndingState(const std::string& state);
         Automaton* operator+(const Automaton& other);
         Automaton* operator+();
         Automaton* operator*(const Automaton& other);
@@ -24,16 +28,26 @@ class Automaton
         ~Automaton();
 
     private:
-        char* states;
-        char* initialStates;
-        char* finalStates;
+        char* alphabet;
+        std::string* states;
+        unsigned statesSize;
+        std::string* initialStates;
+        unsigned initialStatesSize;
+        std::string* finalStates;
+        unsigned finalStatesSSize;
         Transition* deltaFunction;
         unsigned transitionCounter;
         unsigned transitionCapacity;
         void copy(const Automaton& other);
         void resize();
-        bool isStartingState(const char& state) const;
-        bool isEndingState(const char& state) const;
+        void addState(const std::string& state);
+        void cpyStringArray(std::string* str1, std::string* str2, unsigned size);
+        bool recursion(const std::string state) const;
+        bool recursion2(const std::string& state, std::string& previousStates) const;
+        void function(std::string startingState, const char& symbol, std::string* queue, unsigned& queueCounter, Automaton* automatonHelper) const;
+        bool isStartingState(const std::string& state) const;
+        bool isEndingState(const std::string& state) const;
+        bool isState(const std::string& state) const;
         Automaton* unite(const Automaton& other) const;
         Automaton* concat(const Automaton& other) const;
         Automaton* un() const;
