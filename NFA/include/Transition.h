@@ -1,21 +1,22 @@
 #ifndef TRANSITION_H
 #define TRANSITION_H
 #include<iostream>
+#include<string>
 
 
 class Transition
 {
     public:
-        Transition(char initialState = '\0', char symbol = '\0', char endingState = '\0');
+        Transition(std::string initialState = "", char symbol = '\0', std::string endingState = "");
         void print(std::ostream& stream = std::cout) const;
-        char getInitialState() const;
+        std::string getInitialState() const;
         char getSymbol() const;
-        char getEndingState() const;
+        std::string getEndingState() const;
 
     private:
-        char initialState;
+        std::string initialState;
         char symbol;
-        char endingState;
+        std::string endingState;
 };
 
 #endif // TRANSITION_H
