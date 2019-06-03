@@ -2,11 +2,11 @@
 #include <cstring>
 
 
-Transition::Transition(char initialState, char symbol, char endingState): initialState(initialState), symbol(symbol), endingState(endingState){
+Transition::Transition(std::string initialState, char symbol, std::string endingState): initialState(initialState), symbol(symbol), endingState(endingState){
 
 }
 
-char Transition::getInitialState() const{
+std::string Transition::getInitialState() const{
     return initialState;
 }
 
@@ -14,7 +14,7 @@ char Transition::getSymbol() const{
     return symbol;
 }
 
-char Transition::getEndingState() const{
+std::string Transition::getEndingState() const{
     return endingState;
 }
 
