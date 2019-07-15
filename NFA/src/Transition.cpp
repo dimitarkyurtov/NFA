@@ -1,6 +1,9 @@
 #include "Transition.h"
 #include <cstring>
 
+/*
+    changechange!@!
+*/
 
 Transition::Transition(std::string initialState, char symbol, std::string endingState): initialState(initialState), symbol(symbol), endingState(endingState){
 
