@@ -4,6 +4,8 @@
 Automaton::Automaton()
 {
     /* change
+
+        test3
     */
 
     states = new std::string[10];
