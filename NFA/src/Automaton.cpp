@@ -3,6 +3,8 @@
 
 Automaton::Automaton()
 {
+    /* change
+    */
 
     states = new std::string[10];
     states[0] = "";
