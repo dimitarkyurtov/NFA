@@ -9,6 +9,8 @@ using namespace std;
 
 int main()
 {
+    /* Lamoxd!!!
+    */
     Transition  tr4("q0", 'a', "q0"), tr1("q0", 'b', "q0"), tr2("q0", 'a', "q1"), tr3("q1", 'b', "q2");
     Automaton automat;
     automat.addTransition(tr4);
